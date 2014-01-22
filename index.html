@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>ali</title>
+	<script src="minified-legacyie.js"></script>
+</head>
+<body>
+	<input id="q" name="q" type="text"></input>
+	<button id="ara">Ara</button>
+	<div id="results">
+	</div>
+</body>
+</html>
+
+<script type="text/javascript">
+var MINI = require('minified');
+var _=MINI._, $=MINI.$, $$=MINI.$$, EE=MINI.EE, HTML=MINI.HTML;
+
+$(function() {
+	var $results = $('#results');
+	$('#q').on('keyup', function() {
+		var q = $('#q').get('value');
+		$.request('get', 'http://localhost:8080/ks', {q: q})
+   		.then(function(txt) {
+        	var data = $.parseJSON(txt).hits;
+        	if(data.total == 0) {
+        		$results.fill("sonuc yok");
+        	} else {
+	        	$results.fill(HTML('<ul>'+
+	                     '{{each values}}<li>{{this}}</li>{{/each}}'+
+	                     '</ul>', {values: data.hits[0]._source.v}));
+        	}
+   		})
+   		.error(function(status, statusText, responseText) {
+        	$results.set('innerHTML', responseText);
+   		});
+	});
+});
+</script>

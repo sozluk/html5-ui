@@ -1,15 +1,52 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<title>ali</title>
-	<script src="minified-legacyie.js"></script>
-</head>
-<body>
-	<input id="q" name="q" type="text"></input>
-	<button id="ara">Ara</button>
-	<div id="results">
-	</div>
-</body>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Fenni Sözlük</title>
+		<link rel="stylesheet" href="pure-min.css">
+		<style type="text/css">
+			.l-box {
+        padding: 2em 1em;
+    	}
+    	#q {
+    		font-size: large;
+    	}
+    	li {
+    		line-height: 1.6em;
+    	}
+		</style>
+		<script src="minified-legacyie.js"></script>
+	</head>
+	<body>
+		<div class="pure-g">
+			<div class="pure-u-1-4">
+				<div class="l-box">
+					<div class="pure-menu pure-menu-open">
+				    <a class="pure-menu-heading">FENNi SÖZLÜK</a>
+
+				    <ul>
+				        <li><a href="#">Madde 1</a></li>
+				        <li><a href="#">Madde 2</a></li>
+				        <li class="pure-menu-heading">BUNLAR DA VAR</li>
+				        <li><a href="#">Madde 1</a></li>
+				        <li><a href="#">Madde 2</a></li>
+				    </ul>
+					</div>
+				</div>
+			</div>
+
+			<div class="pure-u-3-4">
+				<div class="l-box">
+					<form class="pure-form">
+						<input id="q" type="text" class="pure-input-2-3" placeholder="Aramak istediğin sözcüğü yaz" required autofocus autocomplete="off"/>
+					</form>
+					<div id="results">
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</body>
 </html>
 
 <script type="text/javascript">
@@ -20,20 +57,21 @@ $(function() {
 	var $results = $('#results');
 	$('#q').on('keyup', function() {
 		var q = $('#q').get('value');
+		if(q.length == 0) return;
 		$.request('get', 'http://localhost:8080/ks', {q: q})
-   		.then(function(txt) {
-        	var data = $.parseJSON(txt).hits;
-        	if(data.total == 0) {
-        		$results.fill("sonuc yok");
-        	} else {
-	        	$results.fill(HTML('<ul>'+
-	                     '{{each values}}<li>{{this}}</li>{{/each}}'+
-	                     '</ul>', {values: data.hits[0]._source.v}));
-        	}
-   		})
-   		.error(function(status, statusText, responseText) {
-        	$results.set('innerHTML', responseText);
-   		});
+			.then(function(txt) {
+					var data = $.parseJSON(txt).hits;
+					if(data.total == 0) {
+						$results.fill(HTML('<h3>Sonuç yok</h3>'));
+					} else {
+						$results.fill(HTML('{{each hits}}<h3>{{this._source.k}}</h3><ol>'+
+											 '{{each this._source.v}}<li>{{this}}</li>{{/each}}'+
+											 '</ol>{{/each}}', {hits: data.hits}));
+					}
+			})
+			.error(function(status, statusText, responseText) {
+					$results.set('innerHTML', responseText);
+			});
 	});
 });
 </script>

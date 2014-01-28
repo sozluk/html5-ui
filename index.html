@@ -58,7 +58,7 @@ $(function() {
 	$('#q').on('keyup', function() {
 		var q = $('#q').get('value');
 		if(q.length == 0) return;
-		$.request('get', 'http://localhost:8080/ks', {q: q})
+		$.request('get', 'http://sozluk.io:8080/ks', {q: q})
 			.then(function(txt) {
 					var data = $.parseJSON(txt).hits;
 					if(data.total == 0) {

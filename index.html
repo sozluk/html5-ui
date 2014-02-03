@@ -14,6 +14,14 @@
     	li {
     		line-height: 1.6em;
     	}
+    	blockquote {
+    		font-family: "Georgia", serif;
+			color: #666;
+			font-style: italic;
+			line-height: 1.8;
+			border-left: 5px solid #ddd;
+			padding-left: 1.5em;
+    	}
 		</style>
 		<script src="minified-legacyie.js"></script>
 	</head>
@@ -58,15 +66,23 @@ $(function() {
 	$('#q').on('keyup', function() {
 		var q = $('#q').get('value');
 		if(q.length == 0) return;
-		$.request('get', 'http://sozluk.io:8080/ks', {q: q})
+		$.request('get', 'http://localhost:8080/ks', {q: q})
 			.then(function(txt) {
 					var data = $.parseJSON(txt).hits;
 					if(data.total == 0) {
 						$results.fill(HTML('<h3>Sonuç yok</h3>'));
 					} else {
-						$results.fill(HTML('{{each hits}}<h3>{{this._source.k}}</h3><ol>'+
-											 '{{each this._source.v}}<li>{{this}}</li>{{/each}}'+
-											 '</ol>{{/each}}', {hits: data.hits}));
+						var best = data.hits[0]._source.k;
+						$.request('get', 'http://localhost:8080/qts', {q: best}).then(function(txt) {
+							var dataQuotes = $.parseJSON(txt).hits;
+							if(dataQuotes.hits.length > 0) {
+								data.hits[0]["quote_v"] = dataQuotes.hits[0]._source.v;
+								data.hits[0]["quote_k"] = dataQuotes.hits[0]._source.k;
+							}
+							$results.fill(HTML('{{each hits}}<h3>{{this._source.k}}</h3><ol>'+
+								'{{each this._source.v}}<li>{{this}}</li>{{/each}}'+
+								'</ol><blockquote>{{this.quote_v}}<br/><small>{{this.quote_k}}</small></blockquote>{{/each}}', {hits: data.hits}));
+						});
 					}
 			})
 			.error(function(status, statusText, responseText) {

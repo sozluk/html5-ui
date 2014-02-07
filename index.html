@@ -66,14 +66,14 @@ $(function() {
 	$('#q').on('keyup', function() {
 		var q = $('#q').get('value');
 		if(q.length == 0) return;
-		$.request('get', 'http://localhost:8080/ks', {q: q})
+		$.request('get', 'http://sozluk.io:8080/ks', {q: q})
 			.then(function(txt) {
 					var data = $.parseJSON(txt).hits;
 					if(data.total == 0) {
 						$results.fill(HTML('<h3>Sonuç yok</h3>'));
 					} else {
 						var best = data.hits[0]._source.k;
-						$.request('get', 'http://localhost:8080/qts', {q: best}).then(function(txt) {
+						$.request('get', 'http://sozluk.io:8080/qts', {q: best}).then(function(txt) {
 							var dataQuotes = $.parseJSON(txt).hits;
 							if(dataQuotes.hits.length > 0) {
 								data.hits[0]["quote_v"] = dataQuotes.hits[0]._source.v;

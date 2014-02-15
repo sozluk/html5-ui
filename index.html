@@ -23,13 +23,19 @@
     		width: 800px;
     		margin:0 auto;
     		margin-top: 10%;
+    		padding:20px;
+		    -webkit-box-sizing: border-box;
+		    -moz-box-sizing: border-box;
+		    -ms-box-sizing: border-box;
+		    box-sizing: border-box;     		
 		    -webkit-transition: all 0.1s linear 0s;
 		    -moz-transition: all 0.1s linear 0s;
 		    -o-transition: all 0.1s linear 0s;
 		    transition: all 0.1s linear 0s;     		
     	}
-		
+
 		.press .fenni {
+			padding:0;
 			margin-top:0;
 			width: 100%;
 		}
@@ -45,6 +51,9 @@
 		    box-sizing: border-box; 
 
 		}
+		.fenni header h1 i {
+			font-style: normal;
+		}		
 		.press .fenni h1 {
 			width: 20%;
 			float: left;
@@ -95,7 +104,42 @@
     		outline: 0;
     		border:1px solid #888888;
     	}
+		
 
+		@media screen and (max-width:1070px)  {
+			.press .fenni h1{
+				font-size: 22px;
+				margin:7px 0;
+			}
+			.press .fenni h1 i {
+				display: block;
+			}
+		}
+
+		@media screen and (max-width:800px)  {
+			.fenni {
+				width: 100%;
+			}
+		}
+
+		@media screen and (max-width:512px)  {
+			.press .fenni h1{
+				width: 100%;
+			}
+			.press .fenni h1 i {
+				display: inline;
+			}
+			.press .fenni .search-form {
+				width: 100%;
+			}
+
+			.fenni {
+				margin-top:0;
+			}
+			.fenni h1 {
+				margin-top: 0;
+			}
+		}		
 
 		</style>
 		<script src="minified-legacyie.js"></script>
@@ -103,7 +147,7 @@
 	<body>
 		<div class="fenni">
 			<header>
-				<h1>Fenni Sözlük</h1>
+				<h1>Fenni <i>Sözlük</i></h1>
 				<form class="search-form">
 					<input id="q" type="text" class="pure-input-2-3" placeholder="Aramak istediğin sözcüğü yaz" required autofocus autocomplete="off"/>
 				</form>

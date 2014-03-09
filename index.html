@@ -144,24 +144,31 @@
 		<script type="text/javascript">
 		var MINI = require('minified');
 		var _=MINI._, $=MINI.$, $$=MINI.$$, EE=MINI.EE, HTML=MINI.HTML;
-		$(function() {
-			var ajax = function(url, paramName, paramValue, cb) {
-				url += '?' + encodeURIComponent(paramName) + '=' + encodeURIComponent(paramValue);
-				xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Msxml2.XMLHTTP.3.0");
-				xhr['open']('GET', url, true);
-				xhr['onreadystatechange'] = function() {
+
+		var xhr = null;
+		var ajax = function(url, paramName, paramValue, cb) {
+			if(xhr) xhr.abort();
+			url += '?' + encodeURIComponent(paramName) + '=' + encodeURIComponent(paramValue);
+			xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Msxml2.XMLHTTP.3.0");
+			xhr['open']('GET', url, true);
+			xhr['onreadystatechange'] = function() {
+				try {
 					if (xhr['readyState'] == 4 && xhr['status'] == 200) {
 						cb($.parseJSON(xhr.responseText));
 					}
-				}
-				xhr['send'](null);
-				return xhr;
+				} catch(ex) {}
 			}
+			xhr['send'](null);
+		}
 
-			var handler = null;
+		$(function() {
+			var $results = $('#results'),
+				$q = $('#q'),
+				press = false,
+				timeout = null;
+
 			var query = function(q) {
-				if(handler) handler.abort();
-				handler = ajax('http://sozluk.io:8080/ks', 'q', q, function(json) {
+				ajax('http://sozluk.io:8080/ks', 'q', q, function(json) {
 					var data = json.hits;
 					if(data.total == 0) {
 						$results.fill(HTML('<h3>Sonuç yok</h3>'));
@@ -182,16 +189,14 @@
 				});
 			}
 
-			var press = false, timeout = null;
-			var $results = $('#results');
 			$('#q').on('keyup', function() {
 				if(!press) { $('body').set('+press'); }
-				var q = $('#q').get('value');
+				var q = $q.get('value');
 				if(q.length == 0) return;
 				if(timeout) clearTimeout(timeout);
 				timeout = setTimeout(function() {
-      				query(q);
-    			}, 61);
+					query(q);
+				}, 61);
 			});
 		});
 		</script>

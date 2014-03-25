@@ -189,7 +189,15 @@
 				});
 			}
 
-			$('#q').on('keyup', function() {
+			var hash = window.location.hash.substr(1);
+			if(hash && hash.length > 0) {
+				hash = decodeURIComponent(hash);
+				query(hash);
+				$q.set('@value', hash);
+				if(!press) { $('body').set('+press'); }
+			}
+
+			$q.on('keyup', function() {
 				if(!press) { $('body').set('+press'); }
 				var q = $q.get('value');
 				if(q.length == 0) return;

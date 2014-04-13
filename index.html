@@ -96,6 +96,18 @@
 			border:1px solid #888888;
 		}
 
+		a.suggest {
+			text-decoration: none;
+			background-color: #ededed;
+			color: #000;
+			padding: 2px 5px;
+			margin-right: 5px;
+		}
+
+		a.suggest:hover {
+			text-decoration: underline;
+		}
+
 		@media screen and (max-width:1070px)  {
 			.press .fenni h1{
 				font-size: 22px;
@@ -161,41 +173,57 @@
 			xhr['send'](null);
 		}
 
+		var suggest = function($div, suggest) {
+			var term = suggest.term[0];
+			if(term.options.length > 0) {
+				$div.add(HTML('{{each options}}<a class="suggest" href="#{{this.text}}">{{this.text}}</a>{{/each}}',
+					{options: term.options}));
+			}
+		}
+
 		$(function() {
 			var $results = $('#results'),
 				$q = $('#q'),
+				$suggest = $('.suggest'),
 				press = false,
 				timeout = null;
 
 			var query = function(q) {
 				ajax('http://sozluk.io:8080/ks', 'q', q, function(json) {
-					var data = json.hits;
-					if(data.total == 0) {
+					var hits = json.hits;
+					if(hits.total == 0) {
 						$results.fill(HTML('<h3>Sonuç yok</h3>'));
+						suggest($results, json.suggest);
 					} else {
-						var best = data.hits[0]._source.k;
+						var best = hits.hits[0]._source.k;
 						ajax('http://sozluk.io:8080/qts', 'q', best, function(json) {
 							var dataQuotes = json.hits;
 							if(dataQuotes.hits.length > 0) {
-								data.hits[0]["quote_v"] = dataQuotes.hits[0]._source.v;
-								data.hits[0]["quote_k"] = dataQuotes.hits[0]._source.k;
+								hits.hits[0]["quote_v"] = dataQuotes.hits[0]._source.v;
+								hits.hits[0]["quote_k"] = dataQuotes.hits[0]._source.k;
 							}
 							$results.fill(HTML('{{each hits}}<h3>{{this._source.k}}</h3><ul>'+
 								'{{each this._source.v}}<li>{{this}}</li>{{/each}}'+
 								'</ul>{{if this.quote_v}}<blockquote>{{this.quote_v}}<br/><small>{{this.quote_k}}</small></blockquote>{{/if}}{{/each}}',
-								{hits: data.hits}));
+								{hits: hits.hits}));
 						});
 					}
 				});
 			}
 
-			var hash = window.location.hash.substr(1);
-			if(hash && hash.length > 0) {
-				hash = decodeURIComponent(hash);
-				query(hash);
-				$q.set('@value', hash);
-				if(!press) { $('body').set('+press'); }
+			var navigate = function() {
+				var hash = window.location.hash.substr(1);
+				if(hash && hash.length > 0) {
+					hash = decodeURIComponent(hash);
+					query(hash);
+					$q.set('value', hash);
+					if(!press) { $('body').set('+press'); }
+				}
 			}
+
+			navigate();
+
+			$(window).on('hashchange', navigate);
 
 			$q.on('keyup', function() {
 				if(!press) { $('body').set('+press'); }
